@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>バナナの三大約束</title>
+  <style>
+    @charset "utf-8";
+
+body {
+    background: linear-gradient(to bottom, yellow, lime);
+    font-size: 24px;
+    font-family: "Comic Sans MS", cursive;
+    text-align: center; /* 中央揃え */
+    padding: 20px;
+}
+
+h1, h3, ol, p, marquee {
+    color: rgb(0, 0, 0);
+    margin: 20px 0;
+}
+
+.banana {
+    margin: 20px 0;
+    text-decoration: none;
+    color: rgb(0, 0, 0);
+}
+
+input {
+    display: block; /* ブロック表示で縦並び */
+    margin: 10px auto;
+    padding: 10px;
+    font-size: 18px;
+    width: 80%;         /* スマホで幅いっぱいに */
+    max-width: 400px;   /* PCでは広がりすぎない */
+    border-radius: 8px;
+    border: 1px solid #666;
+}
+
+.riyou {
+    margin-top: 30px;
+    color: rgb(0, 0, 255);
+}
+
+.kumorin {
+    max-width: 90%;   /* スマホでは縮小 */
+    height: auto;
+    margin: 20px auto;
+    display: block;
+}
+
+ol {
+    display: inline-block;   /* 横幅を必要分だけにする */
+    text-align: left;        /* 中のテキストは左寄せ */
+    margin: 20px auto;       /* 外側は中央寄せ */
+    padding-left: 20px;      /* 数字と文字の間を確保 */
+    color: rgb(0, 0, 0);
+}
+  </style>
+  <link rel="icon" href="favicon.ico">
+</head>
+<body>
+  <section>
+    <h1>Bananaの三大約束</h1>
+    <h3>Bananaの三大約束を破ったらバナナ地獄に落とされる</h3>
+    <ol>      
+        <li>Bananaしか食べない</li>
+        <li>Bananaは布団</li>
+        <li>Bananaはバイク</li>
+    </ol>
+    
+    <a draggable="true" class="banana" href="https://all.com"><h1>Banana</h1></a>
+
+    </section>
+    <img class="kumorin" width="600px" src="cara-2.svg" alt="">
+    <h3>Banana</h3>
+  <section>
+
+    <input type="email" id="input1" value="" placeholder="メールアドレスを入力。" >
+    <input type="password" id="input2" value="" placeholder="パスワードを入力。" >
+    <input type="date" id="input2" >
+
+    <button id="submitBtn">契約!</button>
+
+          <div id="messageBox">
+            <p id="messageText"></p>
+        </div>
+    </div>
+  </section>
+  <script>
+            const input1 = document.getElementById('input1');
+        const input2 = document.getElementById('input2');
+        const submitBtn = document.getElementById('submitBtn');
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+
+        const showMessage = (message, isError) => {
+            messageText.textContent = message;
+            if (isError) {
+                messageBox.classList.add('bg-red-100', 'text-red-800', 'border', 'border-red-400');
+                messageBox.classList.remove('bg-green-100', 'text-green-800', 'border', 'border-green-400');
+            } else {
+                messageBox.classList.add('bg-green-100', 'text-green-800', 'border', 'border-green-400');
+                messageBox.classList.remove('bg-red-100', 'text-red-800', 'border', 'border-red-400');
+            }
+            messageBox.classList.remove('hidden');
+        };
+
+        submitBtn.addEventListener('click', () => {
+            const textLength1 = input1.value.length;
+            const textLength2 = input2.value.length;
+
+            if (textLength1 <= 6 || textLength2 <= 6) {
+                showMessage('メールアドレス・パスワードに6文字以上のメールアドレス・パスワードを入力してください。', true);
+            } else {
+                showMessage('契約が完了しました。', false);
+            }
+        });
+        document.addEventListener('DOMContentLoaded', function (event) {
+  
+  let elements = document.getElementsByClassName('js-text');
+  
+  for (var i = 0; i < elements.length; i++) {
+    animateText(elements[i]);
+  }
+});
+  </script>
+</body>
+</html>
