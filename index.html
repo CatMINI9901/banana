@@ -1,167 +1,646 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>今日の単語</title>
-    <style>
-        /* デザイン設定 */
-        :root {
-            --bg-color: #f0f7ff;
-            --card-bg: #ffffff;
-            --text-main: #333333;
-            --text-sub: #666666;
-            --accent-color: #ff9a9e;
-            --shadow: 0 8px 30px rgba(0,0,0,0.05);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>五目並べ AI vs AI - 油断機能つき観戦バトル</title>
+<style>
+  :root {
+    --bg-color: #0f172a;
+    --card-bg: #1e293b;
+    --board-bg: #e2b653;
+    --board-line: #4a3505;
+    --text-main: #f8fafc;
+    --text-sub: #94a3b8;
+    --border-color: #334155;
+    --accent-black: #1e293b;
+    --accent-white: #f8fafc;
+    --accent-mistake: #ef4444;
+  }
+  
+  body {
+    margin: 0;
+    padding: 16px;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+  }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+  .container {
+    max-width: 720px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
 
-        body {
-            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
+  header {
+    text-align: center;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+  }
 
-        /* 全体のコンテナ */
-        .container {
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
-            animation: fadeIn 1.2s ease-out; /* フェードイン演出 */
-        }
+  h1 {
+    margin: 0 0 4px 0;
+    font-size: 1.5rem;
+    color: #e2e8f0;
+  }
 
-        h1 {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
-            color: var(--text-main);
-        }
+  .sub-title {
+    color: var(--text-sub);
+    font-size: 0.85rem;
+    margin: 0;
+  }
 
-        .sub-text {
-            font-size: 0.9rem;
-            color: var(--text-sub);
-            margin-bottom: 24px;
-        }
+  /* 対戦カードエリア */
+  .vs-card {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+  }
 
-        /* ひらがなを表示するカード */
-        .card {
-            background: var(--card-bg);
-            padding: 40px 20px;
-            border-radius: 24px;
-            box-shadow: var(--shadow);
-            margin-bottom: 24px;
-        }
+  .player-box {
+    text-align: center;
+    flex: 1;
+  }
 
-        /* 6文字の並び */
-        .hiragana-display {
-            font-size: 3rem;
-            font-weight: bold;
-            letter-spacing: 0.5rem; /* 文字の間隔をあける */
-            word-break: break-all;
-            color: var(--text-main);
-            line-height: 1.4;
-        }
+  .player-name { font-size: 1rem; font-weight: bold; }
+  .score { font-size: 1.4rem; font-weight: 800; margin-top: 2px; }
+  .player-status { font-size: 0.75rem; color: var(--text-sub); }
+  .vs-badge { font-weight: bold; font-size: 1.2rem; color: #64748b; }
 
-        /* 日付表示 */
-        .date-display {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--text-sub);
-            border-top: 2px dashed #eee;
-            display: inline-block;
-            margin-top: 20px;
-            padding-top: 10px;
-        }
+  /* 盤面エリア */
+  .board-container {
+    display: flex;
+    justify-content: center;
+    background: var(--card-bg);
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+  }
 
-        /* フェードインのアニメーション */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+  .gomoku-board {
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    grid-template-rows: repeat(15, 1fr);
+    width: 450px;
+    height: 450px;
+    background-color: var(--board-bg);
+    padding: 8px;
+    border-radius: 6px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.4);
+    gap: 0;
+    position: relative;
+  }
 
-        /* スマホ向けの微調整 */
-        @media (max-width: 480px) {
-            .hiragana-display {
-                font-size: 2.2rem;
-                letter-spacing: 0.3rem;
-            }
-            h1 {
-                font-size: 1.3rem;
-            }
-        }
-    </style>
+  .cell {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 盤面の格子線 */
+  .cell::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: var(--board-line);
+  }
+
+  .cell::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background-color: var(--board-line);
+  }
+
+  /* 碁石 */
+  .stone {
+    width: 82%;
+    height: 82%;
+    border-radius: 50%;
+    z-index: 2;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+    transition: transform 0.15s ease-out;
+    position: relative;
+  }
+
+  .stone.black {
+    background: radial-gradient(circle at 35% 35%, #4b5563, #111827);
+  }
+
+  .stone.white {
+    background: radial-gradient(circle at 35% 35%, #ffffff, #d1d5db);
+  }
+
+  /* 直前の手ハイライト */
+  .stone.last-move::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 35%;
+    height: 35%;
+    border-radius: 50%;
+    background-color: #f59e0b;
+    box-shadow: 0 0 6px #f59e0b;
+  }
+
+  /* 勝利ラインハイライト */
+  .stone.win-stone {
+    animation: pulse 0.8s infinite alternate;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(0.9); box-shadow: 0 0 4px #22c55e; }
+    100% { transform: scale(1.15); box-shadow: 0 0 12px #22c55e; }
+  }
+
+  /* コントロール */
+  .controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--card-bg);
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  button {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #3b82f6;
+    color: white;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  button:hover { background: #2563eb; }
+  button:active { transform: scale(0.97); }
+  button:disabled { background: #475569; cursor: not-allowed; opacity: 0.6; }
+  button.secondary { background: #475569; }
+  button.secondary:hover { background: #334155; }
+
+  .sliders-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .slider-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: var(--text-sub);
+    font-size: 0.8rem;
+  }
+
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+  }
+
+  input[type="range"] {
+    accent-color: #3b82f6;
+    cursor: pointer;
+  }
+
+  /* 実況ログ */
+  .log-box {
+    background: var(--card-bg);
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    height: 120px;
+    overflow-y: auto;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.8rem;
+  }
+
+  .log-entry { margin: 2px 0; color: #cbd5e1; }
+  .log-entry.black { color: #94a3b8; }
+  .log-entry.white { color: #f8fafc; }
+  .log-entry.mistake { color: #f87171; font-weight: bold; }
+  .log-entry.system { color: #f59e0b; font-weight: bold; }
+
+  @media (max-width: 500px) {
+    .gomoku-board { width: 320px; height: 320px; }
+    .sliders-grid { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>今日の単語</h1>
-        <p class="sub-text">毎日0時に変わります</p>
+<div class="container">
+  <header>
+    <h1>五目並べ AI vs AI（油断モード搭載）</h1>
+    <p class="sub-title">高度なパターン評価AI × 一瞬の油断（ミス）で生まれるドラマ</p>
+  </header>
 
-        <div class="card">
-            <div id="hiragana-result" class="hiragana-display">
-                </div>
-            <div id="date-label" class="date-display">
-                </div>
-        </div>
+  <!-- 対戦カード -->
+  <div class="vs-card">
+    <div class="player-box">
+      <div class="player-name" style="color:#e2e8f0;">● 先手 AI (黒)</div>
+      <div class="score" id="score-black">0 勝</div>
+      <div class="player-status" id="status-black">待機中</div>
     </div>
+    <div class="vs-badge">VS</div>
+    <div class="player-box">
+      <div class="player-name" style="color:#f8fafc;">○ 後手 AI (白)</div>
+      <div class="score" id="score-white">0 勝</div>
+      <div class="player-status" id="status-white">待機中</div>
+    </div>
+  </div>
 
-    <script>
-        /**
-         * ひらがなのリスト（小文字・濁点などを除いた基本の46文字）
-         */
-        const hiraganaList = "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん";
+  <!-- 盤面 -->
+  <div class="board-container">
+    <div class="gomoku-board" id="board"></div>
+  </div>
 
-        /**
-         * 疑似乱数生成器 (Mulberry32)
-         * 同じシード値（数字）を与えると、必ず同じランダムな数値の列を返します。
-         */
-        function sfc32(seed) {
-            return function() {
-                seed |= 0; seed = seed + 0x6D2B79F5 | 0;
-                let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
-                t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-                return ((t ^ t >>> 14) >>> 0) / 4294967296;
-            };
-        }
+  <!-- コントロール -->
+  <div class="controls">
+    <div class="btn-group">
+      <button id="btn-start">自動対戦 開始</button>
+      <button id="btn-step" class="secondary">1手進める</button>
+      <button id="btn-reset" class="secondary">次局へリセット</button>
+    </div>
+    
+    <div class="sliders-grid">
+      <div class="slider-item">
+        <div class="slider-header">
+          <span>油断（ミス）発生率</span>
+          <span id="val-mistake">15%</span>
+        </div>
+        <input type="range" id="slider-mistake" min="0" max="50" value="15" step="5">
+      </div>
+      <div class="slider-item">
+        <div class="slider-header">
+          <span>対戦スピード</span>
+          <span id="val-speed">400ms</span>
+        </div>
+        <input type="range" id="slider-speed" min="50" max="1000" value="400" step="50">
+      </div>
+    </div>
+  </div>
 
-        /**
-         * メイン処理
-         */
-        function generateDailyHiragana() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = now.getMonth() + 1;
-            const day = now.getDate();
+  <!-- 実況ログコンソール -->
+  <div class="log-box" id="log-box">
+    <div class="log-entry system">[SYSTEM] 五目並べAI対戦システム準備完了。</div>
+  </div>
+</div>
 
-            // 1. 日付からユニークなシード値を作成 (例: 20240520)
-            const seed = year * 10000 + month * 100 + day;
-            
-            // 2. シード値を使って乱数生成関数を初期化
-            const rand = sfc32(seed);
+<script>
+  const SIZE = 15;
+  let board = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));
+  let currentPlayer = 'BLACK'; // 'BLACK' or 'WHITE'
+  let isAutoPlaying = false;
+  let autoTimer = null;
+  let lastMove = null;
+  let moveCount = 0;
+  
+  let winCount = { BLACK: 0, WHITE: 0 };
 
-            // 3. 6文字をランダムに選出
-            let result = "";
-            for (let i = 0; i < 6; i++) {
-                const index = Math.floor(rand() * hiraganaList.length);
-                result += hiraganaList[index];
+  const boardEl = document.getElementById('board');
+  const btnStart = document.getElementById('btn-start');
+  const btnStep = document.getElementById('btn-step');
+  const btnReset = document.getElementById('btn-reset');
+  const sliderMistake = document.getElementById('slider-mistake');
+  const sliderSpeed = document.getElementById('slider-speed');
+  const valMistake = document.getElementById('val-mistake');
+  const valSpeed = document.getElementById('val-speed');
+  const logBox = document.getElementById('log-box');
+  const statusBlack = document.getElementById('status-black');
+  const statusWhite = document.getElementById('status-white');
+  const scoreBlack = document.getElementById('score-black');
+  const scoreWhite = document.getElementById('score-white');
+
+  // 盤面生成
+  function createBoardUI() {
+    boardEl.innerHTML = '';
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.row = r;
+        cell.dataset.col = c;
+        boardEl.appendChild(cell);
+      }
+    }
+  }
+
+  function addLog(msg, type = 'system') {
+    const div = document.createElement('div');
+    div.className = `log-entry ${type}`;
+    div.textContent = msg;
+    logBox.appendChild(div);
+    logBox.scrollTop = logBox.scrollHeight;
+  }
+
+  // --- 五目並べ 判定ロジック ---
+  const DIRS = [[0, 1], [1, 0], [1, 1], [1, -1]];
+
+  function checkWin(r, c, player) {
+    for (let [dr, dc] of DIRS) {
+      let stones = [[r, c]];
+      
+      // 正方向
+      let nr = r + dr, nc = c + dc;
+      while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === player) {
+        stones.push([nr, nc]);
+        nr += dr; nc += dc;
+      }
+      // 逆方向
+      nr = r - dr; nc = c - dc;
+      while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === player) {
+        stones.push([nr, nc]);
+        nr -= dr; nc -= dc;
+      }
+
+      if (stones.length >= 5) {
+        return stones;
+      }
+    }
+    return null;
+  }
+
+  // --- 五目並べ 高速評価エンジン ---
+  function evaluatePosition(r, c, player) {
+    let score = 0;
+    const opponent = player === 'BLACK' ? 'WHITE' : 'BLACK';
+
+    for (let [dr, dc] of DIRS) {
+      let count = 1;
+      let openEnds = 0;
+
+      // 正方向
+      let nr = r + dr, nc = c + dc;
+      while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === player) {
+        count++; nr += dr; nc += dc;
+      }
+      if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === null) openEnds++;
+
+      // 逆方向
+      nr = r - dr; nc = c - dc;
+      while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === player) {
+        count++; nr -= dr; nc -= dc;
+      }
+      if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === null) openEnds++;
+
+      // パターン別スコア算定
+      if (count >= 5) score += 100000;
+      else if (count === 4) {
+        if (openEnds === 2) score += 20000;
+        else if (openEnds === 1) score += 3500;
+      } else if (count === 3) {
+        if (openEnds === 2) score += 4000;
+        else if (openEnds === 1) score += 600;
+      } else if (count === 2) {
+        if (openEnds === 2) score += 300;
+        else if (openEnds === 1) score += 40;
+      }
+    }
+    return score;
+  }
+
+  // 候補手の抽出（すでに石がある周辺2マスのみを探索して高速化）
+  function getCandidateMoves() {
+    let candidates = new Set();
+    let hasStone = false;
+
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        if (board[r][c] !== null) {
+          hasStone = true;
+          for (let dr = -2; dr <= 2; dr++) {
+            for (let dc = -2; dc <= 2; dc++) {
+              let nr = r + dr, nc = c + dc;
+              if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === null) {
+                candidates.add(`${nr},${nc}`);
+              }
             }
-
-            // 4. 画面に反映
-            document.getElementById('hiragana-result').textContent = result;
-            document.getElementById('date-label').textContent = `${year}年${month}月${day}日`;
+          }
         }
+      }
+    }
 
-        // 実行
-        generateDailyHiragana();
-    </script>
+    if (!hasStone) return [[7, 7]]; // 初手は天元（中央）
+    return Array.from(candidates).map(str => str.split(',').map(Number));
+  }
+
+  function getBestMove(player) {
+    const opponent = player === 'BLACK' ? 'WHITE' : 'BLACK';
+    const candidates = getCandidateMoves();
+
+    let scoredMoves = candidates.map(([r, c]) => {
+      // 自分の攻めスコア + 相手の防衛スコア
+      let attackScore = evaluatePosition(r, c, player);
+      let defenseScore = evaluatePosition(r, c, opponent);
+      
+      // 防衛を少し高めに意識
+      let total = attackScore + defenseScore * 1.1;
+      return { r, c, score: total, attackScore, defenseScore };
+    });
+
+    // スコア降順にソート
+    scoredMoves.sort((a, b) => b.score - a.score);
+    return scoredMoves;
+  }
+
+  // --- ターンの実行 ---
+  function executeTurn() {
+    const candidates = getBestMove(currentPlayer);
+    if (candidates.length === 0) return;
+
+    const mistakeRate = parseInt(sliderMistake.value, 10) / 100;
+    let chosenMove = candidates[0];
+    let isMistake = false;
+
+    // 「油断（ミス）」判定：確率で1位以外（2〜5位のサブ最適な手）を選択
+    if (candidates.length > 2 && Math.random() < mistakeRate) {
+      // 致命的な勝利手（5連）がある場合はさすがにミスしないが、それ以外で油断発生
+      if (candidates[0].score < 90000) {
+        const maxOffset = Math.min(candidates.length - 1, 4);
+        const mistakeIndex = Math.floor(Math.random() * maxOffset) + 1;
+        chosenMove = candidates[mistakeIndex];
+        isMistake = true;
+      }
+    }
+
+    const { r, c } = chosenMove;
+    board[r][c] = currentPlayer;
+    lastMove = { r, c };
+    moveCount++;
+
+    const pName = currentPlayer === 'BLACK' ? '● AI(黒)' : '○ AI(白)';
+    const logType = currentPlayer.toLowerCase();
+
+    if (isMistake) {
+      addLog(`[${moveCount}手目] ⚠️ ${pName}が油断！警戒を怠り(${r+1}行, ${c+1}列)に不完全な手を打つ！`, 'mistake');
+    } else {
+      addLog(`[${moveCount}手目] ${pName} -> (${r+1}行, ${c+1}列) を選択`, logType);
+    }
+
+    updateUI();
+
+    // 勝利判定
+    const winStones = checkWin(r, c, currentPlayer);
+    if (winStones) {
+      stopAutoPlay();
+      winCount[currentPlayer]++;
+      scoreBlack.textContent = `${winCount.BLACK} 勝`;
+      scoreWhite.textContent = `${winCount.WHITE} 勝`;
+      
+      highlightWinningStones(winStones);
+      addLog(`[決着] ${pName} が5連を達成して勝利しました！（全 ${moveCount} 手）`, 'system');
+      updateStatus("決着！", "決着！");
+      return;
+    }
+
+    // 盤面が埋まった場合
+    if (moveCount >= SIZE * SIZE) {
+      stopAutoPlay();
+      addLog(`[引き分け] 盤面が全て埋まりました。`, 'system');
+      return;
+    }
+
+    // 手番交代
+    currentPlayer = currentPlayer === 'BLACK' ? 'WHITE' : 'BLACK';
+    updateStatus();
+  }
+
+  function highlightWinningStones(stones) {
+    stones.forEach(([r, c]) => {
+      const idx = r * SIZE + c;
+      const cell = boardEl.children[idx];
+      const stone = cell.querySelector('.stone');
+      if (stone) stone.classList.add('win-stone');
+    });
+  }
+
+  function updateStatus(overrideB, overrideW) {
+    if (overrideB) {
+      statusBlack.textContent = overrideB;
+      statusWhite.textContent = overrideW;
+      return;
+    }
+    if (currentPlayer === 'BLACK') {
+      statusBlack.textContent = "思考中 (手番)";
+      statusWhite.textContent = "待機中";
+    } else {
+      statusBlack.textContent = "待機中";
+      statusWhite.textContent = "思考中 (手番)";
+    }
+  }
+
+  function updateUI() {
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        const idx = r * SIZE + c;
+        const cell = boardEl.children[idx];
+        const val = board[r][c];
+
+        let stone = cell.querySelector('.stone');
+        if (val) {
+          if (!stone) {
+            stone = document.createElement('div');
+            cell.appendChild(stone);
+          }
+          stone.className = `stone ${val.toLowerCase()}`;
+          if (lastMove && lastMove.r === r && lastMove.c === c) {
+            stone.classList.add('last-move');
+          }
+        } else if (stone) {
+          cell.removeChild(stone);
+        }
+      }
+    }
+  }
+
+  function startAutoPlay() {
+    isAutoPlaying = true;
+    btnStart.textContent = "一時停止";
+    btnStep.disabled = true;
+
+    function loop() {
+      if (!isAutoPlaying) return;
+      executeTurn();
+      if (isAutoPlaying) {
+        autoTimer = setTimeout(loop, parseInt(sliderSpeed.value, 10));
+      }
+    }
+    loop();
+  }
+
+  function stopAutoPlay() {
+    isAutoPlaying = false;
+    clearTimeout(autoTimer);
+    btnStart.textContent = "自動対戦 再開";
+    btnStep.disabled = false;
+  }
+
+  function resetGame() {
+    stopAutoPlay();
+    board = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));
+    currentPlayer = 'BLACK';
+    lastMove = null;
+    moveCount = 0;
+    btnStart.textContent = "自動対戦 開始";
+    btnStep.disabled = false;
+    addLog(`--- 新しい対局を開始しました ---`, 'system');
+    updateStatus();
+    updateUI();
+  }
+
+  // イベントリスナー
+  btnStart.addEventListener('click', () => {
+    if (isAutoPlaying) stopAutoPlay();
+    else startAutoPlay();
+  });
+
+  btnStep.addEventListener('click', () => {
+    executeTurn();
+  });
+
+  btnReset.addEventListener('click', resetGame);
+
+  sliderMistake.addEventListener('input', (e) => {
+    valMistake.textContent = `${e.target.value}%`;
+  });
+
+  sliderSpeed.addEventListener('input', (e) => {
+    valSpeed.textContent = `${e.target.value}ms`;
+  });
+
+  // 初期化
+  createBoardUI();
+  updateStatus();
+</script>
 </body>
 </html>
